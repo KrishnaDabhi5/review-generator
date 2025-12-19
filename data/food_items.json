@@ -1,0 +1,30 @@
+{
+  "gvila": [
+    "paneer handi",
+    "roti",
+    "manchurian",
+    "dosa",
+    "jini-roll"
+  ],
+  "mojito": [
+    "pizza",
+    "burger",
+    "cold drink",
+    "pani poori",
+    "momo"
+  ],
+  "ratikaka bhaji-pav": [
+    "bhaji-pav",
+    "manchurian",
+    "dosa",
+    "jini-roll"
+  ],
+  "surya dosa": [
+    "dosa",
+    "chizze anguri",
+    "manchurian",
+    "soup",
+    "bhaji-pav",
+    "jini-roll"
+  ]
+}

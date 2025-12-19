@@ -1,0 +1,58 @@
+{
+  "opening": [
+    "I had a great experience at {business_name}.",
+    "My visit to {business_name} was wonderful.",
+    "I recently visited {business_name} and was very impressed.",
+    "Truly a positive experience at {business_name}.",
+    "I'm really happy with the service at {business_name}."
+  ],
+  "food": [
+    "The food was absolutely delicious!",
+    "Everything we tasted was flavorful and fresh.",
+    "I really enjoyed the quality of the food.",
+    "The menu options were fantastic and tasty.",
+    "Hands down, some of the best food I've had recently."
+  ],
+  "staff_specific": [
+    "The staff went above and beyond to help us.",
+    "Every staff member was friendly and polite.",
+    "We were greeted with warm smiles from the team.",
+    "The employees seem to genuinely care about customers.",
+    "Staff was attentive without being crucial."
+  ],
+  "speed": [
+    "Service was incredibly fast!",
+    "We didn't have to wait long at all.",
+    "I was amazed at how efficient the process was.",
+    "Quick service, which I really appreciated.",
+    "They respect your time; everything was done promptly."
+  ],
+  "value": [
+    "Great value for the price.",
+    "Definitely worth every penny.",
+    "Prices are very reasonable for the quality.",
+    "You get a lot for what you pay here.",
+    "Fair pricing and excellent value."
+  ],
+  "service": [
+    "The generic service was very professional.",
+    "Their overall service was excellent.",
+    "The team was incredibly supportive.",
+    "I noticed how professional the workflow was.",
+    "Customer service here is top-notch."
+  ],
+  "environment": [
+    "The place was clean and well maintained.",
+    "It was a very hygienic and organized environment.",
+    "The atmosphere was comfortable and welcoming.",
+    "Everything was spotless and well-arranged.",
+    "I appreciated the clean and tidy ambiance."
+  ],
+  "closing": [
+    "I highly recommend them to everyone.",
+    "I would definitely visit again soon.",
+    "Strongly recommend this place to others.",
+    "Five stars from me without a doubt.",
+    "A fantastic choice, I'll be coming back."
+  ]
+}

@@ -1,0 +1,8 @@
+pandas
+nltk
+spacy
+scikit-learn
+fastapi
+uvicorn
+python-multipart
+requests
