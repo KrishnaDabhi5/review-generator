@@ -187,11 +187,14 @@
         <a href="/" class="back-link">← Back to Home</a>
         <h2>Generate Review</h2>
 
-        <div>
+        <div id="step1">
             <label>Restaurant Name
-                <input id="business" value="Beyond Flavours" placeholder="e.g. My Restaurant" />
+                <input id="business" value="" placeholder="e.g. My Restaurant" />
             </label>
+            <button id="continue">Continue</button>
+        </div>
 
+        <div id="step2" style="display:none;">
             <label>Review Detail Level
                 <div class="level-buttons">
                     <button type="button" class="level-btn" data-level="easy">Easy</button>
@@ -201,12 +204,12 @@
             </label>
 
             <button id="go">Generate Review ✨</button>
-        </div>
 
-        <div id="out">Your generated review will appear here...</div>
+            <div id="out">Your generated review will appear here...</div>
 
-        <div class="action-buttons">
-            <button id="copy-btn" class="copy-btn">📋 Copy & Post Review</button>
+            <div class="action-buttons">
+                <button id="copy-btn" class="copy-btn">📋 Copy & Post Review</button>
+            </div>
         </div>
     </div>
 
@@ -225,9 +228,31 @@
         });
     });
 
+    // Step 1 -> Step 2
+    document.getElementById('continue').addEventListener('click', function(){
+        const business = document.getElementById('business').value.trim();
+        if (!business) {
+            alert('Please enter a restaurant name');
+            document.getElementById('business').focus();
+            return;
+        }
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        // Move focus to make the next step feel responsive
+        document.getElementById('go').focus();
+    });
+
     document.getElementById('go').addEventListener('click', async function(){
-        const business = document.getElementById('business').value;
+        const business = document.getElementById('business').value.trim();
         const out = document.getElementById('out');
+
+        if (!business) {
+            out.style.opacity = '1';
+            out.style.color = 'red';
+            out.textContent = 'Error: Please enter a restaurant name';
+            document.querySelector('.action-buttons').style.display = 'none';
+            return;
+        }
 
         out.style.opacity = '0.7';
         out.textContent = 'Fetching menu items...';
