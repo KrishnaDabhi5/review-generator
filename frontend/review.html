@@ -229,8 +229,9 @@
 
       const restaurant = fromUrl || saved;
       if (!restaurant) {
-        // If no restaurant is selected, force user to select on /test
-        window.location.href = '/test';
+        businessEl.value = '';
+        businessEl.removeAttribute('readonly');
+        subtitleEl.textContent = '';
         return;
       }
 
@@ -257,6 +258,9 @@
         actionButtons.style.display = 'none';
         return;
       }
+
+      try { localStorage.setItem('rg_restaurant', business); } catch (e) {}
+      subtitleEl.textContent = business;
 
       out.style.opacity = '0.7';
       out.style.color = '#444';
