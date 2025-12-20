@@ -307,8 +307,9 @@
         this.textContent = '✅ Copied! Opening Google...';
         setTimeout(() => {
           const restaurantName = (businessEl.value || '').trim();
-          const q = restaurantName ? `${restaurantName} reviews` : 'google reviews';
-          const googleReviewUrl = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+          // Construct Google Reviews URL using the exact format
+          const q = restaurantName ? `${restaurantName.replace(/\s+/g, '+')}+reviews` : 'google+reviews';
+          const googleReviewUrl = `https://www.google.com/search?q=${q}`;
           window.open(googleReviewUrl, '_blank');
           this.textContent = originalText;
         }, 800);
