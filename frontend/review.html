@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generate Review - AIRAA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gold-main: #FDB931;
+      --gold-dark: #B48811;
+      --text-dark: #2C1810;
+      --white-glass: rgba(255, 255, 255, 0.95);
+      --bg-gradient: linear-gradient(135deg, #FFF9F0 0%, #FFF0D1 100%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-gradient);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--text-dark);
+    }
+
+    .container {
+      background: var(--white-glass);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 50px rgba(180, 136, 17, 0.15);
+      border: 1px solid rgba(253, 185, 49, 0.3);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      color: var(--gold-dark);
+      font-size: 2rem;
+      margin-top: 0;
+    }
+
+    .sub {
+      margin-top: 6px;
+      text-align: center;
+      opacity: 0.75;
+      font-size: 0.95rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 15px;
+      font-weight: 600;
+      color: var(--text-dark);
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 2px solid #EEE;
+      border-radius: 10px;
+      margin-top: 5px;
+      transition: border-color 0.3s;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    input:focus {
+      border-color: var(--gold-main);
+      outline: none;
+    }
+
+    input[readonly] {
+      background: #EEF4FF;
+      cursor: not-allowed;
+    }
+
+    .level-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .level-btn {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: #f5f5f5;
+      color: #666;
+      border: 2px solid #e0e0e0;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .level-btn:hover {
+      border-color: var(--gold-main);
+      background: #fff9f0;
+    }
+
+    .level-btn.active {
+      background: linear-gradient(90deg, #FDB931 0%, #F5AE24 100%);
+      color: white;
+      border-color: var(--gold-main);
+      box-shadow: 0 2px 8px rgba(253, 185, 49, 0.3);
+    }
+
+    button {
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #FDB931 0%, #F5AE24 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      margin: 20px auto 0;
+      display: block;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(253, 185, 49, 0.3);
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(253, 185, 49, 0.5);
+    }
+
+    #out {
+      background: #FFFEFA;
+      color: #444;
+      padding: 20px;
+      border-radius: 12px;
+      min-height: 4rem;
+      white-space: pre-wrap;
+      text-align: left;
+      margin-top: 25px;
+      border: 1px dashed var(--gold-main);
+      font-style: italic;
+    }
+
+    a {
+      color: var(--gold-dark);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link {
+      text-align: center;
+      display: block;
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+
+    .back-link:hover { opacity: 1; }
+
+    .action-buttons {
+      display: none;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+
+    .action-buttons button {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">← Back to Home</a>
+    <h2>Generate Review</h2>
+    <div class="sub" id="subtitle"></div>
+
+    <label>Restaurant Name
+      <input id="business" placeholder="e.g. My Restaurant" />
+    </label>
+
+    <label>Review Detail Level
+      <div class="level-buttons">
+        <button type="button" class="level-btn" data-level="easy">Easy</button>
+        <button type="button" class="level-btn active" data-level="medium">Medium</button>
+        <button type="button" class="level-btn" data-level="detailed">High</button>
+      </div>
+    </label>
+
+    <button id="go" type="button">Generate Review ✨</button>
+
+    <div id="out">Your generated review will appear here...</div>
+
+    <div class="action-buttons">
+      <button id="copy-btn" class="copy-btn">📋 Copy & Post Review</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedLevel = 'medium';
+
+    const businessEl = document.getElementById('business');
+    const subtitleEl = document.getElementById('subtitle');
+    const out = document.getElementById('out');
+    const actionButtons = document.querySelector('.action-buttons');
+
+    function getRestaurantFromUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search || '');
+        return (params.get('restaurant') || params.get('business') || '').trim();
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function initRestaurant() {
+      const fromUrl = getRestaurantFromUrl();
+      let saved = '';
+      try { saved = (localStorage.getItem('rg_restaurant') || '').trim(); } catch (e) {}
+
+      const restaurant = fromUrl || saved;
+      if (!restaurant) {
+        // If no restaurant is selected, force user to select on /test
+        window.location.href = '/test';
+        return;
+      }
+
+      try { localStorage.setItem('rg_restaurant', restaurant); } catch (e) {}
+      businessEl.value = restaurant;
+      businessEl.setAttribute('readonly', 'readonly');
+      subtitleEl.textContent = restaurant;
+    }
+
+    document.querySelectorAll('.level-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        selectedLevel = this.dataset.level;
+      });
+    });
+
+    document.getElementById('go').addEventListener('click', async function(){
+      const business = businessEl.value.trim();
+      if (!business) {
+        out.style.opacity = '1';
+        out.style.color = 'red';
+        out.textContent = 'Error: Please enter a restaurant name';
+        actionButtons.style.display = 'none';
+        return;
+      }
+
+      out.style.opacity = '0.7';
+      out.style.color = '#444';
+      out.textContent = 'Fetching menu items...';
+
+      try {
+        const menuRes = await fetch(`/api/restaurant-foods/${encodeURIComponent(business)}`);
+        if (!menuRes.ok) throw new Error('Could not fetch menu items');
+        const menuData = await menuRes.json();
+        const foodItems = menuData.food_items || [];
+
+        out.textContent = 'Generating review...';
+
+        const res = await fetch('/api/generate-with-food', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ business, level: selectedLevel, food_items: foodItems })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || 'Unknown error');
+        }
+
+        const j = await res.json();
+        out.style.opacity = '1';
+        out.style.color = '#444';
+        out.textContent = j.review || JSON.stringify(j, null, 2);
+        actionButtons.style.display = 'flex';
+      } catch (e) {
+        out.style.opacity = '1';
+        out.style.color = 'red';
+        out.textContent = 'Error: ' + (e?.message || 'Unknown error');
+        actionButtons.style.display = 'none';
+      }
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', async function(){
+      const text = out.textContent;
+      if (text === 'Your generated review will appear here...' || text.startsWith('Generating magic...') || text.startsWith('Error:')) {
+        alert('Please generate a review first!');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalText = this.textContent;
+        this.textContent = '✅ Copied! Opening Google...';
+        setTimeout(() => {
+          const googleReviewUrl = 'https://www.google.com';
+          window.open(googleReviewUrl, '_blank');
+          this.textContent = originalText;
+        }, 800);
+      } catch (err) {
+        alert('Failed to copy: ' + err.message);
+      }
+    });
+
+    initRestaurant();
+  </script>
+</body>
+</html>

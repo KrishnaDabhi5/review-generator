@@ -554,12 +554,28 @@ async def menu_form():
 </html>
 """
 
+
 @app.get("/test")
 async def test_form():
+    select_path = FRONTEND_DIR / "select.html"
+    if select_path.exists():
+        return FileResponse(select_path, media_type="text/html")
     index_path = FRONTEND_DIR / "index.html"
     if index_path.exists():
         return FileResponse(index_path, media_type="text/html")
-    return HTMLResponse("<html><body><h1>Index not found at frontend/index.html</h1></body></html>")
+    return HTMLResponse("<html><body><h1>Select page not found at frontend/select.html</h1></body></html>")
+
+
+@app.get("/review")
+async def review_form():
+    review_path = FRONTEND_DIR / "review.html"
+    if review_path.exists():
+        return FileResponse(review_path, media_type="text/html")
+    index_path = FRONTEND_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path, media_type="text/html")
+    return HTMLResponse("<html><body><h1>Review page not found at frontend/review.html</h1></body></html>")
+
 
 @app.post("/api/generate")
 async def generate(req: GenerateRequest):
@@ -570,6 +586,7 @@ async def generate(req: GenerateRequest):
     review_text = GENERATOR.generate_review(business_name, level)
     return {"review": review_text}
 
+
 @app.post("/api/generate-with-food")
 async def generate_with_food(req: GenerateRequest):
     if not FOOD_GENERATOR:
@@ -578,6 +595,7 @@ async def generate_with_food(req: GenerateRequest):
     level = req.level if req.level in ["easy", "medium", "detailed"] else "medium"
     review_text = FOOD_GENERATOR.generate_review(business_name, level, req.food_items)
     return {"review": review_text}
+
 
 @app.post("/api/add-menu")
 async def add_menu(req: AddMenuRequest):
