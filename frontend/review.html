@@ -307,10 +307,25 @@
         this.textContent = '✅ Copied! Opening Google...';
         setTimeout(() => {
           const restaurantName = (businessEl.value || '').trim();
-          // Try multiple approaches to get to Google Reviews
-          const searchQuery = restaurantName ? `"${restaurantName.replace(/"/g, '')}" reviews` : 'google reviews';
-          const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-          window.open(googleSearchUrl, '_blank');
+          const normalizeRestaurantKey = (name) => (name || '')
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, ' ')
+            .trim();
+
+          const directReviewLinks = {
+            'ratikaka bhaji pav': 'https://www.google.com/search?q=ratikaka+bhaji-pav+&sca_esv=f5cc941534d16def&sxsrf=AE3TifN4xHTZswqQiEiADKdGT7Qo_B9z1Q%3A1766218038318&ei=NllGaZSUE6CQseMP14OR0Q0&ved=0ahUKEwiUh5T22suRAxUgSGwGHddBJNoQ4dUDCBE&uact=5&oq=ratikaka+bhaji-pav+&gs_lp=Egxnd3Mtd2l6LXNlcnAiE3JhdGlrYWthIGJoYWppLXBhdiAyBBAjGCcyCRAAGJIDGBYYHjIJEAAYkgMYFhgeMgYQABgWGB4yBhAAGBYYHjIGEAAYFhgeMgYQABgWGB4yCRAAGBYYyQMYHjILEAAYgAQYhgMYigUyCxAAGIAEGIYDGIoFSPsVUJ4JWKEScAF4AZABAJgBhQKgAbwKqgEFMC41LjK4AQPIAQD4AQGYAgSgApkFwgIKEAAYsAMY1gQYR8ICBRAAGO8FwgIIEAAYgAQYogSYAwCIBgGQBgaSBwUxLjEuMqAHpimyBwUwLjEuMrgHlQXCBwUwLjEuM8gHDYAIAA&sclient=gws-wiz-serp&lqi=ChJyYXRpa2FrYSBiaGFqaS1wYXZIxuqpmfWwgIAIWiAQABABEAIYABgBGAIiEnJhdGlrYWthIGJoYWppIHBhdpIBEWZhbWlseV9yZXN0YXVyYW50ugELCgliaGFqaS1wYXY#lkt=LocalPoiReviews&rlimm=10183725500861388745&lrd=0x3be04fb2b5e6cea3:0x8d53dc6328ee17c9,3,,,,'
+          };
+
+          const restaurantKey = normalizeRestaurantKey(restaurantName);
+          const directUrl = directReviewLinks[restaurantKey];
+
+          if (directUrl) {
+            window.open(directUrl, '_blank');
+          } else {
+            const searchQuery = restaurantName ? `"${restaurantName.replace(/"/g, '')}" reviews` : 'google reviews';
+            const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+            window.open(googleSearchUrl, '_blank');
+          }
           this.textContent = originalText;
         }, 800);
       } catch (err) {
