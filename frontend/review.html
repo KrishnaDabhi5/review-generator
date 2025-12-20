@@ -307,10 +307,10 @@
         this.textContent = '✅ Copied! Opening Google...';
         setTimeout(() => {
           const restaurantName = (businessEl.value || '').trim();
-          // Construct Google Reviews URL using the exact format
-          const q = restaurantName ? `${restaurantName.replace(/\s+/g, '+')}+reviews` : 'google+reviews';
-          const googleReviewUrl = `https://www.google.com/search?q=${q}`;
-          window.open(googleReviewUrl, '_blank');
+          // Try multiple approaches to get to Google Reviews
+          const searchQuery = restaurantName ? `"${restaurantName.replace(/"/g, '')}" reviews` : 'google reviews';
+          const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+          window.open(googleSearchUrl, '_blank');
           this.textContent = originalText;
         }, 800);
       } catch (err) {
