@@ -126,6 +126,11 @@
             box-shadow: 0 6px 20px rgba(253, 185, 49, 0.5);
         }
 
+        input[readonly] {
+            background: #EEF4FF;
+            cursor: not-allowed;
+        }
+
         #out {
             background: #FFFEFA;
             color: #444;
@@ -187,14 +192,11 @@
         <a href="/" class="back-link">← Back to Home</a>
         <h2>Generate Review</h2>
 
-        <div id="step1">
+        <div id="step2">
             <label>Restaurant Name
                 <input id="business" value="" placeholder="e.g. My Restaurant" />
             </label>
-            <button id="continue">Continue</button>
-        </div>
 
-        <div id="step2" style="display:none;">
             <label>Review Detail Level
                 <div class="level-buttons">
                     <button type="button" class="level-btn" data-level="easy">Easy</button>
@@ -217,6 +219,44 @@
     // Level selection handling
     let selectedLevel = 'medium'; // Default
 
+    function getRestaurantFromUrl() {
+        try {
+            const params = new URLSearchParams(window.location.search || '');
+            return (params.get('restaurant') || params.get('business') || '').trim();
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function openStep2WithRestaurant(restaurantName) {
+        const step2 = document.getElementById('step2');
+        const businessEl = document.getElementById('business');
+
+        if (restaurantName) {
+            businessEl.value = restaurantName.trim();
+            businessEl.setAttribute('readonly', 'readonly');
+        } else {
+            businessEl.removeAttribute('readonly');
+        }
+
+        step2.style.display = 'block';
+    }
+
+    // Auto-open Step 2 on /test when restaurant is known (saved or provided in URL)
+    (function initRestaurantStep() {
+        const fromUrl = getRestaurantFromUrl();
+        const saved = (localStorage.getItem('rg_restaurant') || '').trim();
+        const restaurant = fromUrl || saved;
+
+        // Always show Step 2 on /test. If we know the restaurant, prefill + lock it.
+        if (restaurant) {
+            try { localStorage.setItem('rg_restaurant', restaurant); } catch (e) {}
+            openStep2WithRestaurant(restaurant);
+        } else {
+            openStep2WithRestaurant('');
+        }
+    })();
+
     document.querySelectorAll('.level-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             // Remove active class from all buttons
@@ -226,20 +266,6 @@
             // Update selected level
             selectedLevel = this.dataset.level;
         });
-    });
-
-    // Step 1 -> Step 2
-    document.getElementById('continue').addEventListener('click', function(){
-        const business = document.getElementById('business').value.trim();
-        if (!business) {
-            alert('Please enter a restaurant name');
-            document.getElementById('business').focus();
-            return;
-        }
-        document.getElementById('step1').style.display = 'none';
-        document.getElementById('step2').style.display = 'block';
-        // Move focus to make the next step feel responsive
-        document.getElementById('go').focus();
     });
 
     document.getElementById('go').addEventListener('click', async function(){
