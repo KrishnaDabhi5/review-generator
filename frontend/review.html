@@ -7,333 +7,333 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
   <style>
     :root {
-      --gold-main: #FDB931;
-      --gold-dark: #B48811;
-      --text-dark: #2C1810;
-      --white-glass: rgba(255, 255, 255, 0.95);
-      --bg-gradient: linear-gradient(135deg, #FFF9F0 0%, #FFF0D1 100%);
+      --gold-600: #f4b21b;
+      --gold-700: #d79a12;
+      --text-900: #1a1a1a;
+      --text-600: #565656;
+      --card: rgba(255, 255, 255, 0.92);
+      --border: rgba(26, 26, 26, 0.12);
+      --shadow: 0 20px 50px rgba(26, 26, 26, 0.12);
+      --radius-xl: 18px;
     }
-
-    * { box-sizing: border-box; }
 
     body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--bg-gradient);
       margin: 0;
       min-height: 100vh;
+      font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text-900);
+      background: radial-gradient(1200px 600px at 50% 20%, #fff7e7 0%, #fdecc9 55%, #f8dfb0 100%);
       display: flex;
-      flex-direction: column;
-      justify-content: center;
       align-items: center;
-      padding: 20px;
-      color: var(--text-dark);
+      justify-content: center;
+      padding: 28px 16px;
     }
 
-    .container {
-      background: var(--white-glass);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 15px 50px rgba(180, 136, 17, 0.15);
-      border: 1px solid rgba(253, 185, 49, 0.3);
+    .wrap {
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
+      position: relative;
     }
 
-    h2 {
-      text-align: center;
-      font-family: 'Playfair Display', serif;
-      color: var(--gold-dark);
-      font-size: 2rem;
-      margin-top: 0;
-    }
-
-    .sub {
-      margin-top: 6px;
-      text-align: center;
-      opacity: 0.75;
-      font-size: 0.95rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 15px;
+    .back {
+      display: inline-flex;
+      justify-content: center;
+      width: 100%;
+      text-decoration: none;
+      color: var(--gold-700);
+      font-size: 13px;
       font-weight: 600;
-      color: var(--text-dark);
-      text-align: left;
+      margin-bottom: 12px;
     }
 
-    input {
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 26px 22px 18px;
+      backdrop-filter: blur(8px);
+    }
+
+    .title {
+      font-family: 'Playfair Display', serif;
+      margin: 6px 0 6px;
+      text-align: center;
+      color: #b37b00;
+      font-size: 34px;
+      line-height: 1.15;
+    }
+
+    .hint {
+      margin: 0 0 18px;
+      text-align: center;
+      color: var(--text-600);
+      font-size: 13px;
+    }
+
+    .field {
+      margin-top: 14px;
+    }
+
+    .label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: 8px;
+    }
+
+    .input {
       width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      border: 2px solid #EEE;
-      border-radius: 10px;
-      margin-top: 5px;
-      transition: border-color 0.3s;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    input:focus {
-      border-color: var(--gold-main);
+      box-sizing: border-box;
+      padding: 11px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #eef5ff;
       outline: none;
+      font-size: 14px;
     }
 
-    input[readonly] {
-      background: #EEF4FF;
+    .seg {
+      display: flex;
+      gap: 10px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(26, 26, 26, 0.08);
+    }
+
+    .seg button {
+      flex: 1;
+      border: 1px solid rgba(26, 26, 26, 0.10);
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text-600);
+      border-radius: 999px;
+      padding: 9px 10px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .seg button.active {
+      background: linear-gradient(180deg, var(--gold-600), var(--gold-700));
+      border-color: rgba(0, 0, 0, 0.12);
+      color: white;
+      box-shadow: 0 10px 24px rgba(244, 178, 27, 0.25);
+    }
+
+    .primary {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.18);
+      background: linear-gradient(180deg, var(--gold-600), var(--gold-700));
+      color: white;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 16px 30px rgba(244, 178, 27, 0.25);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .primary:disabled {
+      opacity: 0.72;
       cursor: not-allowed;
     }
 
-    .level-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 5px;
-    }
-
-    .level-btn {
-      flex: 1;
-      padding: 12px 16px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      background: #f5f5f5;
-      color: #666;
-      border: 2px solid #e0e0e0;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-    }
-
-    .level-btn:hover {
-      border-color: var(--gold-main);
-      background: #fff9f0;
-    }
-
-    .level-btn.active {
-      background: linear-gradient(90deg, #FDB931 0%, #F5AE24 100%);
-      color: white;
-      border-color: var(--gold-main);
-      box-shadow: 0 2px 8px rgba(253, 185, 49, 0.3);
-    }
-
-    button {
-      padding: 14px 28px;
-      font-size: 1rem;
-      font-weight: 600;
-      background: linear-gradient(90deg, #FDB931 0%, #F5AE24 100%);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      margin: 20px auto 0;
-      display: block;
-      width: 100%;
-      box-shadow: 0 4px 15px rgba(253, 185, 49, 0.3);
-      transition: transform 0.2s;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(253, 185, 49, 0.5);
-    }
-
-    #out {
-      background: #FFFEFA;
-      color: #444;
-      padding: 20px;
+    .output {
+      margin-top: 16px;
+      padding: 14px 14px;
       border-radius: 12px;
-      min-height: 4rem;
-      white-space: pre-wrap;
-      text-align: left;
-      margin-top: 25px;
-      border: 1px dashed var(--gold-main);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px dashed rgba(214, 157, 18, 0.55);
+      min-height: 108px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(26, 26, 26, 0.82);
+    }
+
+    .output .placeholder {
+      margin: 0;
+      color: rgba(26, 26, 26, 0.45);
       font-style: italic;
     }
 
-    a {
-      color: var(--gold-dark);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .back-link {
-      text-align: center;
-      display: block;
-      margin-bottom: 20px;
-      opacity: 0.7;
-    }
-
-    .back-link:hover { opacity: 1; }
-
-    .action-buttons {
-      display: none;
-      gap: 10px;
-      margin-top: 15px;
+    .copy {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(180deg, var(--gold-600), var(--gold-700));
+      color: white;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
       justify-content: center;
+      gap: 8px;
     }
 
-    .action-buttons button {
-      margin-top: 0;
+    .copy svg {
+      stroke: currentColor;
     }
   </style>
-</head>
-<body>
-  <div class="container">
-    <a href="/" class="back-link">← Back to Home</a>
-    <h2>Generate Review</h2>
-    <div class="sub" id="subtitle"></div>
 
-    <label>Restaurant Name
-      <input id="business" placeholder="e.g. My Restaurant" />
-    </label>
+  <div class="wrap">
+    <a class="back" href="/">← Back to Home</a>
 
-    <label>Review Detail Level
-      <div class="level-buttons">
-        <button type="button" class="level-btn" data-level="easy">Easy</button>
-        <button type="button" class="level-btn active" data-level="medium">Medium</button>
-        <button type="button" class="level-btn" data-level="detailed">High</button>
+    <div class="card">
+      <h1 class="title">Generate Review</h1>
+      <p class="hint" id="restaurantHint"></p>
+
+      <div class="field">
+        <label class="label" for="restaurantInput">Restaurant Name</label>
+        <input id="restaurantInput" class="input" type="text" autocomplete="off" />
       </div>
-    </label>
 
-    <button id="go" type="button">Generate Review ✨</button>
+      <div class="field">
+        <span class="label">Review Detail Level</span>
+        <div class="seg" id="levelSeg">
+          <button type="button" data-level="easy">Easy</button>
+          <button type="button" data-level="medium">Medium</button>
+          <button type="button" data-level="detailed">High</button>
+        </div>
+      </div>
 
-    <div id="out">Your generated review will appear here...</div>
+      <button id="generateBtn" class="primary">
+        <span class="btn-text">Generate Review</span>
+        <span class="btn-icon">✨</span>
+      </button>
 
-    <div class="action-buttons">
-      <button id="copy-btn" class="copy-btn">📋 Copy & Post Review</button>
+      <div class="output" id="result">
+        <p class="placeholder">Click 'Generate Review' to create a review</p>
+      </div>
+
+      <button id="copyBtn" class="copy" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span class="copy-text">Copy &amp; Post Review</span>
+      </button>
     </div>
   </div>
 
   <script>
-    let selectedLevel = 'medium';
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const resultEl = document.getElementById('result');
+    const restaurantInput = document.getElementById('restaurantInput');
+    const restaurantHint = document.getElementById('restaurantHint');
+    const levelSeg = document.getElementById('levelSeg');
+    let currentReview = '';
+    let currentLevel = 'medium';
 
-    const businessEl = document.getElementById('business');
-    const subtitleEl = document.getElementById('subtitle');
-    const out = document.getElementById('out');
-    const actionButtons = document.querySelector('.action-buttons');
+    const GOOGLE_REVIEW_URL = 'https://www.google.com/search?sca_esv=1778344be681955f&sxsrf=AE3TifMitNdPTXL22bIgar7V9t-aFTy7_A:1767181995618&si=AMgyJEtREmoPL4P1I5IDCfuA8gybfVI2d5Uj7QMwYCZHKDZ-E99PyUbwEjFCumxugyVdQFmwNdr2eDPqqtsdzVzuAoBP2BSPktE8LP4W3LZLmiRIqieDuehx90QydP2sJ9J96LTDnZsq&q=Surya+Dhosa+Reviews&sa=X&ved=2ahUKEwjIxuj44eeRAxXISmwGHY2KDkIQ0bkNegQILRAD&biw=1536&bih=695&dpr=1.25#lrd=0x3be04fcd4b194281:0x199a79a639c60867,3,,,,';
 
-    function getRestaurantFromUrl() {
+    // Get restaurant name from URL or use default
+    function getRestaurantName() {
       try {
-        const params = new URLSearchParams(window.location.search || '');
-        return (params.get('restaurant') || params.get('business') || '').trim();
+        const params = new URLSearchParams(window.location.search);
+        return params.get('restaurant') || 'this restaurant';
       } catch (e) {
-        return '';
+        return 'this restaurant';
       }
     }
 
-    function initRestaurant() {
-      const fromUrl = getRestaurantFromUrl();
-      let saved = '';
-      try { saved = (localStorage.getItem('rg_restaurant') || '').trim(); } catch (e) {}
-
-      const restaurant = fromUrl || saved;
-      if (!restaurant) {
-        businessEl.value = '';
-        businessEl.removeAttribute('readonly');
-        subtitleEl.textContent = '';
-        return;
-      }
-
-      try { localStorage.setItem('rg_restaurant', restaurant); } catch (e) {}
-      businessEl.value = restaurant;
-      businessEl.setAttribute('readonly', 'readonly');
-      subtitleEl.textContent = restaurant;
-    }
-
-    document.querySelectorAll('.level-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        selectedLevel = this.dataset.level;
-      });
-    });
-
-    document.getElementById('go').addEventListener('click', async function(){
-      const business = businessEl.value.trim();
-      if (!business) {
-        out.style.opacity = '1';
-        out.style.color = 'red';
-        out.textContent = 'Error: Please enter a restaurant name';
-        actionButtons.style.display = 'none';
-        return;
-      }
-
-      try { localStorage.setItem('rg_restaurant', business); } catch (e) {}
-      subtitleEl.textContent = business;
-
-      out.style.opacity = '0.7';
-      out.style.color = '#444';
-      out.textContent = 'Fetching menu items...';
-
+    // Generate a review
+    async function generateReview() {
+      const restaurant = (restaurantInput.value || '').trim() || 'this restaurant';
+      const level = currentLevel;
+      
+      // Show loading state
+      generateBtn.disabled = true;
+      generateBtn.querySelector('.btn-text').textContent = 'Generating...';
+      
       try {
-        const menuRes = await fetch(`/api/restaurant-foods/${encodeURIComponent(business)}`);
-        if (!menuRes.ok) throw new Error('Could not fetch menu items');
-        const menuData = await menuRes.json();
-        const foodItems = menuData.food_items || [];
-
-        out.textContent = 'Generating review...';
-
-        const res = await fetch('/api/generate-with-food', {
+        const response = await fetch('/api/generate-review', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ business, level: selectedLevel, food_items: foodItems })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ restaurant, level })
         });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail || 'Unknown error');
+        if (!response.ok) {
+          throw new Error('Failed to generate review');
         }
 
-        const j = await res.json();
-        out.style.opacity = '1';
-        out.style.color = '#444';
-        out.textContent = j.review || JSON.stringify(j, null, 2);
-        actionButtons.style.display = 'flex';
-      } catch (e) {
-        out.style.opacity = '1';
-        out.style.color = 'red';
-        out.textContent = 'Error: ' + (e?.message || 'Unknown error');
-        actionButtons.style.display = 'none';
+        const data = await response.json();
+        currentReview = data.review || 'No review was generated. Please try again.';
+        
+        // Display the generated review
+        resultEl.innerHTML = `<p>${currentReview.replace(/\n/g, '</p><p>')}</p>`;
+        copyBtn.style.display = 'inline-flex';
+        
+      } catch (error) {
+        console.error('Error generating review:', error);
+        resultEl.innerHTML = '<p class="error">Failed to generate review. Please try again later.</p>';
+      } finally {
+        // Reset button state
+        generateBtn.disabled = false;
+        generateBtn.querySelector('.btn-text').textContent = 'Generate Review';
       }
-    });
+    }
 
-    document.getElementById('copy-btn').addEventListener('click', async function(){
-      const text = out.textContent;
-      if (text === 'Your generated review will appear here...' || text.startsWith('Generating magic...') || text.startsWith('Error:')) {
-        alert('Please generate a review first!');
-        return;
-      }
-
+    // Copy review to clipboard
+    async function copyToClipboard() {
+      if (!currentReview) return;
+      
       try {
-        await navigator.clipboard.writeText(text);
-        const originalText = this.textContent;
-        this.textContent = '✅ Copied! Opening Google...';
-        const restaurantName = (businessEl.value || '').trim();
-        const normalizeRestaurantKey = (name) => (name || '')
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, ' ')
-          .trim();
-
-        const directReviewLinks = {
-          'ratikaka bhaji pav': 'https://www.google.com/search?sca_esv=f5cc941534d16def&q=ratikaka+ni+bhajipav+and+restaurant+%7C+pavbhaji+%7C+punjabi+restaurant+%7C+dosa+surat+reviews&uds=AOm0WdE2fekQnsyfYEw8JPYozOKzyDHTztvpUzJYSbbLTzSeMZLR3AUPk6eZ5hsdgUj0fYAQxDNzUY1MIlHMVfOkvRqAa-CZi3TBlUJVe0h9zt7lmv5u1hUuxQM0ORiU9mZsLhmasmZNWM_cGhbFUUMHtAl2ukCTIXwQUQUgoKNvIMS80tdhIVdWOd1AX03PM8-YlgqU6Lj-3m8tl5zeoN258rOfL6t-2lOjoJ4T3saJEzhqeKlZu4E&si=AMgyJEtREmoPL4P1I5IDCfuA8gybfVI2d5Uj7QMwYCZHKDZ-E8Eu7nCMWYfx8QwdDCrTUBd0Pd0yhoAnMFTQnrjrUjzvCXS4PU4wE6bzNVA6t0UokjL6q_3uJuBdiCYrVOFfV2PvX5KNUS1YzdIYNxGbQr9ugq64jMHqC6y_a5r_W-zl9w_nC9G7qIlQggAXTKDTK0NSA-F_xka3fdqWFPlYYIXfM5yuydg5kwo6B4rt6I-QIFAas4w%3D&sa=X&ved=2ahUKEwjw-Mud8cuRAxUrTaQEHZ-hIU4QxKsJKAN6BAgUEAE&ictx=1&stq=1&cs=1&lei=mnBGafDDJKuakdUPn8OG8QQ#lrd=0x3be04f83e51ef417:0x196da62a3526c8a,3,,,,'
-        };
-
-        const restaurantKey = normalizeRestaurantKey(restaurantName);
-        const directUrl = directReviewLinks[restaurantKey];
-        const searchQuery = restaurantName ? `"${restaurantName.replace(/"/g, '')}" reviews` : 'google reviews';
-        const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-        const targetUrl = directUrl || googleSearchUrl;
-
-        const w = window.open(targetUrl, '_blank');
-        if (!w) window.location.href = targetUrl;
-        this.textContent = originalText;
+        await navigator.clipboard.writeText(currentReview);
+        const original = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span class="copy-text">Copied</span>';
+        setTimeout(() => {
+          copyBtn.innerHTML = original;
+          window.location.href = GOOGLE_REVIEW_URL;
+        }, 450);
       } catch (err) {
-        alert('Failed to copy: ' + err.message);
+        console.error('Failed to copy:', err);
       }
-    });
+    }
 
-    initRestaurant();
+    // Event listeners
+    generateBtn.addEventListener('click', generateReview);
+    copyBtn.addEventListener('click', copyToClipboard);
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Hide copy button initially
+      copyBtn.style.display = 'none';
+
+      restaurantInput.value = getRestaurantName();
+      restaurantHint.textContent = restaurantInput.value || '';
+
+      const buttons = Array.from(levelSeg.querySelectorAll('button'));
+      const setLevel = (lvl) => {
+        currentLevel = lvl;
+        buttons.forEach(b => b.classList.toggle('active', b.dataset.level === lvl));
+      };
+
+      setLevel('medium');
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => setLevel(btn.dataset.level));
+      });
+
+      restaurantInput.addEventListener('input', () => {
+        restaurantHint.textContent = (restaurantInput.value || '').trim();
+      });
+    });
   </script>
 </body>
 </html>

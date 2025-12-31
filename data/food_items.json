@@ -20,11 +20,23 @@
     "jini-roll"
   ],
   "surya dosa": [
-    "dosa",
-    "chizze anguri",
-    "manchurian",
-    "soup",
-    "bhaji-pav",
-    "jini-roll"
+    {
+      "name": "paneer handi",
+      "rank": 1
+    },
+    {
+      "name": "dosa",
+      "rank": 2
+    },
+    {
+      "name": "manchurian",
+      "rank": 3
+    }
+  ],
+  "rati kaka ni bhaji": [
+    {
+      "name": "paneer hhandi",
+      "rank": 1
+    }
   ]
 }

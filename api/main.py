@@ -1,7 +1,9 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+import json
+import requests
 from pathlib import Path
 from typing import List, Optional
 
@@ -17,19 +19,31 @@ class GenerateRequest(BaseModel):
     level: str = "medium"
     food_items: Optional[List[str]] = None
 
+class GenerateReviewRequest(BaseModel):
+    restaurant: Optional[str] = None
+    level: str = "medium"
+
+class MenuItem(BaseModel):
+    name: str
+    rank: int = 0  # Default rank is 0 (will be sorted last)
+
 class AddMenuRequest(BaseModel):
     restaurant: str
-    food_items: List[str]
+    menu_items: List[MenuItem]
 
-class ExtractFoodRequest(BaseModel):
-    menu_text: str
-    cuisine_type: Optional[str] = None
+class RestaurantProfileRequest(BaseModel):
+    restaurant: str
+    city: str
+    lat: float
+    lng: float
+    seo_keywords: List[str] = []
 
 # PROJECT ROOT (one level up from this file if this file is api/main.py)
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATES_PATH = ROOT / "data" / "templates.json"
 BUCKETS_PATH = ROOT / "data" / "buckets.json"
 FOOD_DB_PATH = ROOT / "data" / "food_items.json"
+PROFILES_PATH = ROOT / "data" / "restaurant_profiles.json"
 FRONTEND_DIR = ROOT / "frontend"
 API_DIR = ROOT / "api"  # your images are inside the api folder per your message
 
@@ -279,7 +293,6 @@ async def root():
     <body>
       <div class="layout">
         <div class="card">
-          <!-- Centered image logo inside the bordered container -->
           <div class="logo">
             <img src="/static-api/WhatsApp%20Image%202025-12-19%20at%205.07.31%20PM.jpeg" alt="AIRAA">
           </div>
@@ -292,8 +305,7 @@ async def root():
           <div class="step"><div class="num">4</div>Customer Reviews</div>
 
           <div class="buttons">
-            <a class="btn btn-primary" href="/test">Generate Reviews</a>
-            <a class="btn btn-secondary" href="/menu">Add Menu</a>
+            <a class="btn btn-primary" href="/onboarding">Get Started</a>
           </div>
         </div>
 
@@ -302,19 +314,16 @@ async def root():
 
           <div class="center-strip" role="presentation">
             <div class="plates">
-              <!-- Top plate -->
               <div class="plate top" title="Spicy Pav Bhaji">
                 <div class="badge">Spicy Pick</div>
                 <img src="/static-api/WhatsApp%20Image%202025-12-19%20at%203.08.30%20PM%20%281%29.jpeg" alt="Pav Bhaji">
               </div>
 
-              <!-- Middle plate -->
               <div class="plate mid small" title="Crispy Masala Dosa">
                 <div class="badge" style="left:auto;right:12px;background:#FFB84D">Crispy</div>
                 <img src="/static-api/WhatsApp%20Image%202025-12-19%20at%203.08.30%20PM%20%282%29.jpeg" alt="Masala Dosa">
               </div>
 
-              <!-- Bottom plate -->
               <div class="plate bot" title="Tasty Manchurian">
                 <div class="badge" style="left:12px;background:#F2A43A">Chef's</div>
                 <img src="/static-api/WhatsApp%20Image%202025-12-19%20at%203.08.30%20PM.jpeg" alt="Manchurian">
@@ -323,258 +332,44 @@ async def root():
           </div>
         </div>
       </div>
-      <h1>How To Use</h1>
-      <h2>AI REVIEW CARD</h2>
+    </body>
+    </html>
+    """
 
-      <div class="step"><div class="num">1</div>Get Your Card</div>
-      <div class="step"><div class="num">2</div>Showcase</div>
-      <div class="step"><div class="num">3</div>Scan QR Code</div>
-      <div class="step"><div class="num">4</div>Customer Reviews</div>
 
-      <div class="buttons">
-        <a class="btn btn-primary" href="/test">Generate Reviews</a>
-        <a class="btn btn-secondary" href="/menu">Add Menu</a>
-      </div>
-    </div>
+@app.get("/onboarding")
+async def onboarding_form():
+    path = FRONTEND_DIR / "onboarding.html"
+    if path.exists():
+        return FileResponse(path, media_type="text/html")
+    return HTMLResponse("<html><body><h1>Onboarding page not found</h1></body></html>")
 
-    <div class="right-container" aria-hidden="true">
-      <div class="bg-decor"></div>
-
-      <div class="center-strip" role="presentation">
-        <div class="plates">
-          <!-- Top plate -->
-          <div class="plate top" title="Spicy Pav Bhaji">
-            <div class="badge">Spicy Pick</div>
-            <img src="/static-api/WhatsApp%20Image%202025-12-19%20at%203.08.30%20PM%20%281%29.jpeg" alt="Pav Bhaji">
-          </div>
-
-          <!-- Middle plate -->
-          <div class="plate mid small" title="Crispy Masala Dosa">
-            <div class="badge" style="left:auto;right:12px;background:#FFB84D">Crispy</div>
-            <img src="/static-api/WhatsApp%20Image%202025-12-19%20at%203.08.30%20PM%20%282%29.jpeg" alt="Masala Dosa">
-          </div>
-
-          <!-- Bottom plate -->
-          <div class="plate bot" title="Tasty Manchurian">
-            <div class="badge" style="left:12px;background:#F2A43A">Chef's</div>
-            <img src="/static-api/WhatsApp%20Image%202025-12-19%20at%203.08.30%20PM.jpeg" alt="Manchurian">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
-</html>
-"""
 
 @app.get("/menu", response_class=HTMLResponse)
 async def menu_form():
-    return """
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Menu Items</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg1:#FFF7E8;
-      --bg2:#FCE9C7;
-      --accent:#F4A629;
-      --accent2:#E59A18;
-      --text:#2A251E;
-      --muted:#6F665C;
-      --card:#FFFFFF;
-      --border:#F0E3C5;
-      --danger:#FF3B30;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:'Outfit',sans-serif;color:var(--text)}
-    body{
-      background: radial-gradient(1200px 900px at 10% 10%, var(--bg1), transparent),
-                radial-gradient(1100px 900px at 90% 20%, var(--bg2), transparent),
-                linear-gradient(180deg, #FFF3DC, #FCE9C7);
-      padding:32px 16px 60px;
-    }
-    .wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
-    .topbar{display:flex;justify-content:center;align-items:center;position:relative}
-    .back{
-      position:absolute;left:0;top:0;
-      text-decoration:none;color:var(--accent2);
-      font-weight:600;font-size:0.95rem;
-      padding:10px 12px;border-radius:999px;
-      background:rgba(255,255,255,0.55);
-      border:1px solid rgba(240,227,197,0.8);
-      box-shadow:0 8px 20px rgba(0,0,0,0.06);
-    }
-    .back:hover{background:rgba(255,255,255,0.75)}
-    .card{
-      background:var(--card);
-      border-radius:18px;
-      padding:26px;
-      border:1px solid rgba(240,227,197,0.9);
-      box-shadow:0 18px 50px rgba(0,0,0,0.10);
-    }
-    h1{margin:6px 0 0;text-align:center;font-family:'Playfair Display',serif;color:var(--accent2);font-size:2.1rem;}
-    .label{font-weight:700;font-size:0.85rem;margin:14px 0 8px;display:block}
-    .input, .textarea{width:100%;border:1px solid #E9E9E9;border-radius:10px;padding:12px;font-size:0.95rem;outline:none;background:#fff;}
-    .textarea{min-height:150px;resize:vertical;line-height:1.35}
-    .input:focus,.textarea:focus{border-color:rgba(244,166,41,0.65);box-shadow:0 0 0 4px rgba(244,166,41,0.18)}
-    .hint{font-size:0.78rem;color:var(--muted);margin-top:8px}
-    .actions{margin-top:18px;display:flex;justify-content:center}
-    .primary{width:min(520px, 100%);border:none;color:#fff;font-weight:700;padding:12px 16px;border-radius:999px;cursor:pointer;background:linear-gradient(90deg, var(--accent), var(--accent2));}
-    .primary:disabled{opacity:0.65;cursor:not-allowed}
-    .section-title{text-align:center;font-family:'Playfair Display',serif;color:var(--accent2);margin:0 0 14px;}
-    .outline{width:100%;border-radius:999px;padding:10px 14px;background:#fff;border:1.5px solid rgba(244,166,41,0.85);color:var(--accent2);font-weight:700;cursor:pointer;}
-    .list{margin-top:14px;display:flex;flex-direction:column;gap:10px}
-    .row{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);background:rgba(255,255,255,0.9);}
-    .name{font-weight:700}
-    .danger{border:none;background:var(--danger);color:#fff;font-weight:700;padding:8px 12px;border-radius:999px;cursor:pointer;}
-    .empty{text-align:center;color:var(--muted);padding:14px 0 2px;font-size:0.92rem;}
-    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(42,37,30,0.92);color:#fff;padding:10px 14px;border-radius:12px;font-size:0.9rem;display:none;max-width:min(520px, calc(100% - 28px));}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="topbar"><a class="back" href="/">&larr; Back to Home</a></div>
-    <div class="card">
-      <h1>Add Menu Items</h1>
-      <form id="menuForm">
-        <label class="label" for="restaurant">Restaurant Name</label>
-        <input class="input" id="restaurant" name="restaurant" placeholder="e.g. My Fine Dining" autocomplete="off" required />
-        <label class="label" for="items">Menu Items</label>
-        <textarea class="textarea" id="items" name="items" placeholder="Enter food items (one per line)" required></textarea>
-        <div class="hint">List your signature dishes for better AI suggestions.</div>
-        <div class="actions"><button class="primary" id="submitBtn" type="submit">Add to Menu Library</button></div>
-      </form>
-    </div>
-    <div class="card">
-      <h2 class="section-title">Registered Restaurants</h2>
-      <button class="outline" id="refreshBtn" type="button">Refresh List</button>
-      <div class="list" id="restaurants"></div>
-      <div class="empty" id="emptyState" style="display:none;">No restaurants added yet.</div>
-    </div>
-  </div>
-  <div class="toast" id="toast"></div>
-  <script>
-    const restaurantsEl = document.getElementById('restaurants');
-    const emptyStateEl = document.getElementById('emptyState');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const form = document.getElementById('menuForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const toastEl = document.getElementById('toast');
-
-    function showToast(msg) {
-      toastEl.textContent = msg;
-      toastEl.style.display = 'block';
-      window.clearTimeout(showToast._t);
-      showToast._t = window.setTimeout(() => { toastEl.style.display = 'none'; }, 2400);
-    }
-
-    function normalizeLines(text) {
-      return text.split(/\\r?\\n/).map(s => s.trim()).filter(Boolean);
-    }
-
-    async function loadRestaurants() {
-      restaurantsEl.innerHTML = '';
-      emptyStateEl.style.display = 'none';
-      try {
-        const res = await fetch('/api/all-restaurants');
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.detail || 'Failed to load restaurants');
-        const list = Array.isArray(data.restaurants) ? data.restaurants : [];
-        if (list.length === 0) {
-          emptyStateEl.style.display = 'block';
-          return;
-        }
-        list.forEach((name) => {
-          const row = document.createElement('div');
-          row.className = 'row';
-          const left = document.createElement('div');
-          left.className = 'name';
-          left.textContent = name;
-          const del = document.createElement('button');
-          del.className = 'danger';
-          del.type = 'button';
-          del.textContent = 'Delete';
-          del.addEventListener('click', async () => {
-            const ok = confirm(`Delete restaurant "${name}"?`);
-            if (!ok) return;
-            try {
-              const r = await fetch(`/api/delete-restaurant/${encodeURIComponent(name)}`, { method: 'DELETE' });
-              const payload = await r.json().catch(() => ({}));
-              if (!r.ok) throw new Error(payload.detail || 'Delete failed');
-              showToast('Deleted');
-              await loadRestaurants();
-            } catch (e) {
-              showToast(e?.message || 'Delete failed');
-            }
-          });
-          row.appendChild(left);
-          row.appendChild(del);
-          restaurantsEl.appendChild(row);
-        });
-      } catch (e) {
-        emptyStateEl.style.display = 'block';
-        showToast(e?.message || 'Could not load list');
-      }
-    }
-
-    refreshBtn.addEventListener('click', loadRestaurants);
-
-    form.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      const restaurant = document.getElementById('restaurant').value.trim();
-      const itemsText = document.getElementById('items').value;
-      const food_items = normalizeLines(itemsText);
-      if (!restaurant) return showToast('Enter restaurant name');
-      if (food_items.length === 0) return showToast('Enter at least 1 menu item');
-      submitBtn.disabled = true;
-      try {
-        const res = await fetch('/api/add-menu', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ restaurant, food_items })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.detail || 'Failed to add menu');
-        showToast('Menu added');
-        document.getElementById('items').value = '';
-        await loadRestaurants();
-      } catch (e) {
-        showToast(e?.message || 'Failed to add menu');
-      } finally {
-        submitBtn.disabled = false;
-      }
-    });
-
-    loadRestaurants();
-  </script>
-</body>
-</html>
-"""
+    return HTMLResponse("<html><body><h1>Not Found</h1></body></html>", status_code=404)
 
 
 @app.get("/test")
 async def test_form():
-    select_path = FRONTEND_DIR / "select.html"
-    if select_path.exists():
-        return FileResponse(select_path, media_type="text/html")
-    index_path = FRONTEND_DIR / "index.html"
-    if index_path.exists():
-        return FileResponse(index_path, media_type="text/html")
-    return HTMLResponse("<html><body><h1>Select page not found at frontend/select.html</h1></body></html>")
-
-
-@app.get("/review")
-async def review_form():
     review_path = FRONTEND_DIR / "review.html"
     if review_path.exists():
         return FileResponse(review_path, media_type="text/html")
     index_path = FRONTEND_DIR / "index.html"
     if index_path.exists():
         return FileResponse(index_path, media_type="text/html")
-    return HTMLResponse("<html><body><h1>Review page not found at frontend/review.html</h1></body></html>")
+    select_path = FRONTEND_DIR / "select.html"
+    if select_path.exists():
+        return FileResponse(select_path, media_type="text/html")
+    return HTMLResponse("<html><body><h1>Frontend not found</h1></body></html>")
+
+
+@app.get("/review")
+async def review_form(request: Request):
+    target = "/test"
+    if request.url.query:
+        target = f"{target}?{request.url.query}"
+    return RedirectResponse(url=target, status_code=307)
 
 
 @app.post("/api/generate")
@@ -585,6 +380,22 @@ async def generate(req: GenerateRequest):
     level = req.level if req.level in ["easy", "medium", "detailed"] else "medium"
     review_text = GENERATOR.generate_review(business_name, level)
     return {"review": review_text}
+
+
+@app.post("/api/generate-review")
+async def generate_review(req: GenerateReviewRequest):
+    business_name = (req.restaurant or "").strip() or "this restaurant"
+    level = req.level if req.level in ["easy", "medium", "detailed"] else "medium"
+
+    if FOOD_GENERATOR:
+        review_text = FOOD_GENERATOR.generate_review(business_name, level)
+        return {"review": review_text}
+
+    if GENERATOR:
+        review_text = GENERATOR.generate_review(business_name, level)
+        return {"review": review_text}
+
+    raise HTTPException(status_code=400, detail="Generator not initialized.")
 
 
 @app.post("/api/generate-with-food")
@@ -601,23 +412,122 @@ async def generate_with_food(req: GenerateRequest):
 async def add_menu(req: AddMenuRequest):
     if not FOOD_EXTRACTOR:
         raise HTTPException(status_code=500, detail="Food extractor not available.")
-    FOOD_EXTRACTOR.add_restaurant_foods(req.restaurant, req.food_items)
+    
+    # Convert menu items to the format expected by the extractor
+    menu_items = [{"name": item.name, "rank": item.rank} for item in req.menu_items]
+    
+    FOOD_EXTRACTOR.add_restaurant_foods(req.restaurant, menu_items)
     return {"message": "Menu added"}
 
+
+@app.post("/api/restaurant-profile")
+async def save_restaurant_profile(req: RestaurantProfileRequest):
+    restaurant = (req.restaurant or "").strip()
+    if not restaurant:
+        raise HTTPException(status_code=400, detail="Restaurant name is required")
+
+    try:
+        PROFILES_PATH.parent.mkdir(parents=True, exist_ok=True)
+        profiles = {}
+        if PROFILES_PATH.exists():
+            with open(PROFILES_PATH, "r", encoding="utf-8") as f:
+                profiles = json.load(f) or {}
+        profiles[str(restaurant).lower()] = {
+            "restaurant": restaurant,
+            "city": (req.city or "").strip(),
+            "lat": float(req.lat),
+            "lng": float(req.lng),
+            "seo_keywords": [str(k).strip().lower() for k in (req.seo_keywords or []) if str(k).strip()],
+        }
+        with open(PROFILES_PATH, "w", encoding="utf-8") as f:
+            json.dump(profiles, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save profile: {e}")
+
+    return {"message": "Profile saved"}
+
+
+@app.get("/api/geocode")
+async def geocode(q: str):
+    query = (q or "").strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Query is required")
+
+    candidates = [query]
+    parts = [p.strip() for p in query.split(",") if p.strip()]
+    if len(parts) >= 4:
+        candidates.append(", ".join(parts[-4:]))
+    if len(parts) >= 3:
+        candidates.append(", ".join(parts[-3:]))
+    if len(parts) >= 2:
+        candidates.append(", ".join(parts[-2:]))
+
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": "AIRAA-Review-Generator/1.0 (local dev)",
+    }
+
+    last_err = None
+    for cand in candidates:
+        try:
+            resp = requests.get(
+                "https://nominatim.openstreetmap.org/search",
+                params={"format": "json", "q": cand, "limit": 1},
+                headers=headers,
+                timeout=10,
+            )
+            if resp.status_code != 200:
+                last_err = f"HTTP {resp.status_code}"
+                continue
+            data = resp.json() if resp.content else []
+            if not isinstance(data, list) or not data:
+                continue
+            item = data[0] or {}
+            lat = float(item.get("lat"))
+            lng = float(item.get("lon"))
+            return {"lat": lat, "lng": lng}
+        except requests.exceptions.RequestException as e:
+            last_err = f"Request error: {e}"
+        except json.JSONDecodeError as e:
+            last_err = f"JSON decode error: {e}"
+        except Exception as e:
+            last_err = str(e)
+
+    if last_err:
+        raise HTTPException(status_code=400, detail=f"Geocoding failed: {last_err}")
+    raise HTTPException(status_code=400, detail="No results found")
+
+
 @app.get("/api/restaurant-foods/{restaurant_name}")
-async def get_restaurant_foods(restaurant_name: str):
+async def get_restaurant_foods(restaurant_name: str, include_ranks: bool = False):
     if not FOOD_EXTRACTOR:
         raise HTTPException(status_code=500, detail="Food extractor not available.")
-    foods = FOOD_EXTRACTOR.get_restaurant_foods(restaurant_name)
-    return {"restaurant": restaurant_name, "food_items": foods}
+    
+    foods = FOOD_EXTRACTOR.get_restaurant_foods(restaurant_name, include_ranks=include_ranks)
+    return {
+        "restaurant": restaurant_name, 
+        "food_items": foods if include_ranks else [item['name'] if isinstance(item, dict) else item for item in foods]
+    }
+
 
 @app.get("/api/all-restaurants")
 async def get_all_restaurants():
     if not FOOD_EXTRACTOR:
         raise HTTPException(status_code=500, detail="Food extractor not available.")
-    restaurants = FOOD_EXTRACTOR.get_all_restaurants()
+    
+    # Get all restaurants with their menu items (including ranks)
+    restaurants = {}
+    for name in FOOD_EXTRACTOR.get_all_restaurants():
+        items = FOOD_EXTRACTOR.get_restaurant_foods(name, include_ranks=True)
+        restaurants[name] = items
+    
     stats = FOOD_EXTRACTOR.get_stats()
-    return {"restaurants": restaurants, "stats": stats}
+    return {
+        "restaurants": list(restaurants.keys()),
+        "menus": restaurants,
+        "stats": stats
+    }
+
 
 @app.delete("/api/delete-restaurant/{restaurant_name}")
 async def delete_restaurant(restaurant_name: str):

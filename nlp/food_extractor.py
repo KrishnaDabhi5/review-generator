@@ -92,35 +92,59 @@ class FoodItemExtractor:
         
         return unique_foods
     
-    def add_restaurant_foods(self, restaurant_name: str, food_items: List[str]):
+    def add_restaurant_foods(self, restaurant_name: str, menu_items: List[dict]):
         """
-        Add food items for a restaurant.
+        Add food items with ranks for a restaurant.
         
         Args:
             restaurant_name: Name of the restaurant
-            food_items: List of food items on menu
+            menu_items: List of dicts with 'name' and 'rank' keys
         """
-        # Clean food items
-        cleaned = [f.strip().lower() for f in food_items if f.strip()]
-        cleaned = list(dict.fromkeys(cleaned))  # Remove duplicates
+        # Clean and validate menu items
+        cleaned_items = []
+        seen = set()
+        
+        for item in menu_items:
+            if not isinstance(item, dict):
+                continue
+                
+            name = str(item.get('name', '')).strip().lower()
+            rank = int(item.get('rank', 0)) or 0
+            
+            if name and name not in seen:
+                cleaned_items.append({
+                    'name': name,
+                    'rank': rank
+                })
+                seen.add(name)
+        
+        # Sort by rank (ascending) before storing
+        cleaned_items.sort(key=lambda x: (x['rank'], x['name']))
         
         # Store in database
-        self.food_db[restaurant_name.lower()] = cleaned
+        self.food_db[restaurant_name.lower()] = cleaned_items
         self._save_food_db()
         
-        print(f"✅ Added {len(cleaned)} food items for '{restaurant_name}'")
+        print(f"✅ Added {len(cleaned_items)} ranked food items for '{restaurant_name}'")
     
-    def get_restaurant_foods(self, restaurant_name: str) -> List[str]:
+    def get_restaurant_foods(self, restaurant_name: str, include_ranks: bool = False) -> List[dict]:
         """
         Get food items for a specific restaurant.
         
         Args:
             restaurant_name: Name of the restaurant
+            include_ranks: Whether to include rank information in the output
             
         Returns:
-            List of food items for the restaurant
+            List of food items (with ranks if include_ranks=True)
         """
-        return self.food_db.get(restaurant_name.lower(), [])
+        items = self.food_db.get(restaurant_name.lower(), [])
+        
+        if not include_ranks or not items or not isinstance(items[0], dict):
+            # Backward compatibility: return just names if data is in old format
+            return items if include_ranks else [item['name'] if isinstance(item, dict) else item for item in items]
+            
+        return sorted(items, key=lambda x: (x.get('rank', 0), x.get('name', '')))
     
     def extract_from_ocr_text(self, ocr_text: str, cuisine_type: str = None) -> List[str]:
         """
@@ -205,12 +229,26 @@ class FoodItemExtractor:
     def get_stats(self) -> Dict:
         """Get database statistics."""
         total_restaurants = len(self.food_db)
-        total_items = sum(len(items) for items in self.food_db.values())
+        total_items = 0
+        ranked_items = 0
+        
+        # Count items and check how many have ranks
+        for items in self.food_db.values():
+            if not items:
+                continue
+                
+            total_items += len(items)
+            
+            # Check if items have rank information
+            if isinstance(items[0], dict):
+                ranked_items += sum(1 for item in items if item.get('rank', 0) > 0)
         
         return {
             'total_restaurants': total_restaurants,
-            'total_unique_foods': total_items,
-            'average_items_per_restaurant': total_items / total_restaurants if total_restaurants > 0 else 0
+            'total_menu_items': total_items,
+            'ranked_menu_items': ranked_items,
+            'average_items_per_restaurant': total_items / total_restaurants if total_restaurants > 0 else 0,
+            'ranking_coverage': (ranked_items / total_items) if total_items > 0 else 0
         }
 
 
