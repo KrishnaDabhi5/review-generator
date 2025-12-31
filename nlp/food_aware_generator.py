@@ -79,7 +79,9 @@ class FoodAwareReviewGenerator:
     def generate_review(self, 
                        business_name: str, 
                        level: str = "medium",
-                       food_items: List[str] = None) -> str:
+                       food_items: List[str] = None,
+                       city: str = "",
+                       seo_keywords: List[str] = None) -> str:
         """
         Generate a review mentioning specific food items.
         
@@ -87,20 +89,24 @@ class FoodAwareReviewGenerator:
             business_name: Name of the restaurant
             level: Difficulty level (easy/medium/detailed)
             food_items: List of specific food items to mention (optional)
+            city: City name for SEO-friendly context
+            seo_keywords: List of SEO keywords to include in the review
             
         Returns:
             Generated review string
         """
+        if seo_keywords is None:
+            seo_keywords = []
         # Get food items from database if not provided
         if food_items is None:
             food_items = self.food_extractor.get_restaurant_foods(business_name)
         
         if level == "easy":
-            sentences = self._generate_easy(business_name, food_items)
+            sentences = self._generate_easy(business_name, food_items, city, seo_keywords)
         elif level == "detailed":
-            sentences = self._generate_detailed(business_name, food_items)
+            sentences = self._generate_detailed(business_name, food_items, city, seo_keywords)
         else:  # medium
-            sentences = self._generate_medium(business_name, food_items)
+            sentences = self._generate_medium(business_name, food_items, city, seo_keywords)
         
         return " ".join(sentences)
     
@@ -108,8 +114,10 @@ class FoodAwareReviewGenerator:
         """Get a random food item from list."""
         return random.choice(food_items) if food_items else None
     
-    def _generate_easy(self, business_name: str, food_items: List[str]) -> list:
+    def _generate_easy(self, business_name: str, food_items: List[str], city: str = "", seo_keywords: List[str] = None) -> list:
         """Generate 2-sentence easy review."""
+        if seo_keywords is None:
+            seo_keywords = []
         sentences = []
         
         # Opening template
@@ -117,20 +125,18 @@ class FoodAwareReviewGenerator:
             opening = random.choice(self.templates['opening'])
             sentences.append(opening.format(business_name=business_name))
         
-        # Food with specific item if available
-        if food_items:
-            food = self._get_random_food(food_items)
+        # Food-specific sentence
+        food = self._get_random_food(food_items)
+        if food:
             template = random.choice(self.food_templates['praise'])
             sentences.append(template.format(food=food))
-        else:
-            # Fallback to generic food sentence
-            if self.buckets.get('food'):
-                sentences.append(random.choice(self.buckets['food']))
         
         return sentences
     
-    def _generate_medium(self, business_name: str, food_items: List[str]) -> list:
+    def _generate_medium(self, business_name: str, food_items: List[str], city: str = "", seo_keywords: List[str] = None) -> list:
         """Generate 4-sentence medium review."""
+        if seo_keywords is None:
+            seo_keywords = []
         sentences = []
         
         # 1. Opening template
@@ -138,7 +144,14 @@ class FoodAwareReviewGenerator:
             opening = random.choice(self.templates['opening'])
             sentences.append(opening.format(business_name=business_name))
         
-        # 2. Food with specific item
+        # 2. Inject city or SEO keyword if available
+        if city:
+            sentences.append(f"Located in {city}, this place really stands out.")
+        elif seo_keywords:
+            kw = random.choice(seo_keywords)
+            sentences.append(f"The {kw} here is exceptional.")
+        
+        # 3. Food with specific item
         if food_items:
             food = self._get_random_food(food_items)
             if random.random() < 0.6:
@@ -165,7 +178,7 @@ class FoodAwareReviewGenerator:
         if service_opts:
             sentences.append(random.choice(service_opts))
         
-        # 4. Closing with optional food recommendation
+        # 5. Closing with optional food recommendation
         if food_items and random.random() < 0.4:
             food = self._get_random_food(food_items)
             template = random.choice(self.food_templates['recommend'])
@@ -174,10 +187,13 @@ class FoodAwareReviewGenerator:
             if self.templates.get('closing'):
                 sentences.append(random.choice(self.templates['closing']))
         
-        return sentences
+        # Trim to 4 sentences if we added city/SEO
+        return sentences[:4]
     
-    def _generate_detailed(self, business_name: str, food_items: List[str]) -> list:
+    def _generate_detailed(self, business_name: str, food_items: List[str], city: str = "", seo_keywords: List[str] = None) -> list:
         """Generate 6-sentence detailed review."""
+        if seo_keywords is None:
+            seo_keywords = []
         sentences = []
         
         # 1. Opening template
@@ -185,7 +201,14 @@ class FoodAwareReviewGenerator:
             opening = random.choice(self.templates['opening'])
             sentences.append(opening.format(business_name=business_name))
         
-        # 2. Environment/atmosphere
+        # 2. Inject city or SEO keyword if available
+        if city:
+            sentences.append(f"Being in {city}, this spot offers something special.")
+        elif seo_keywords:
+            kw = random.choice(seo_keywords)
+            sentences.append(f"The {kw} experience here is top-notch.")
+        
+        # 3. Environment/atmosphere
         env_opts = []
         if self.templates.get('environment'):
             env_opts.extend(self.templates['environment'])
@@ -194,7 +217,7 @@ class FoodAwareReviewGenerator:
         if env_opts:
             sentences.append(random.choice(env_opts))
         
-        # 3. Food details with specific items
+        # 4. Food details with specific items
         if food_items:
             foods_to_mention = random.sample(food_items, min(2, len(food_items)))
             food_praise = []
@@ -211,7 +234,7 @@ class FoodAwareReviewGenerator:
             if food_opts:
                 sentences.append(random.choice(food_opts))
         
-        # 4. Service/staff details
+        # 5. Service/staff details
         service_opts = []
         if self.templates.get('staff_specific'):
             service_opts.extend(self.templates['staff_specific'])
@@ -222,11 +245,11 @@ class FoodAwareReviewGenerator:
         if service_opts:
             sentences.append(random.choice(service_opts))
         
-        # 5. Value/pricing
+        # 6. Value/pricing
         if self.templates.get('value'):
             sentences.append(random.choice(self.templates['value']))
         
-        # 6. Closing with food recommendation
+        # 7. Closing with food recommendation
         if food_items:
             food = self._get_random_food(food_items)
             template = random.choice(self.food_templates['recommend'])
@@ -235,4 +258,5 @@ class FoodAwareReviewGenerator:
             if self.templates.get('closing'):
                 sentences.append(random.choice(self.templates['closing']))
         
-        return sentences
+        # Trim to 6 sentences if we added city/SEO
+        return sentences[:6]

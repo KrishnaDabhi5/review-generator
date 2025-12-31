@@ -387,7 +387,7 @@ async def generate_review(req: GenerateReviewRequest):
     business_name = (req.restaurant or "").strip() or "this restaurant"
     level = req.level if req.level in ["easy", "medium", "detailed"] else "medium"
 
-    # Try to load saved menu items for this restaurant (Option A: use only saved menu)
+    # Load saved menu items (Option A: use only saved menu)
     menu_items = []
     if FOOD_EXTRACTOR:
         try:
@@ -395,14 +395,36 @@ async def generate_review(req: GenerateReviewRequest):
         except Exception:
             menu_items = []
 
-    # If we have saved menu items, use FoodAwareGenerator with only those items
+    # Load restaurant profile (city, SEO keywords) for SEO-friendly reviews
+    profile = {}
+    try:
+        if PROFILES_PATH.exists():
+            with open(PROFILES_PATH, "r", encoding="utf-8") as f:
+                profiles = json.load(f) or {}
+                profile = profiles.get(str(business_name).lower(), {})
+    except Exception:
+        profile = {}
+
+    city = profile.get("city", "")
+    seo_keywords = profile.get("seo_keywords", [])
+
+    # If we have saved menu items, use FoodAwareGenerator with all inputs
     if FOOD_GENERATOR and menu_items:
-        review_text = FOOD_GENERATOR.generate_review(business_name, level, food_items=menu_items)
+        review_text = FOOD_GENERATOR.generate_review(
+            business_name, level,
+            food_items=menu_items,
+            city=city,
+            seo_keywords=seo_keywords
+        )
         return {"review": review_text}
 
-    # If no menu or generator unavailable, fall back to generic sentences (no specific food names)
+    # If no menu, use TemplateGenerator with city/SEO keywords if available
     if GENERATOR:
-        review_text = GENERATOR.generate_review(business_name, level)
+        review_text = GENERATOR.generate_review(
+            business_name, level,
+            city=city,
+            seo_keywords=seo_keywords
+        )
         return {"review": review_text}
 
     raise HTTPException(status_code=400, detail="Generator not initialized.")

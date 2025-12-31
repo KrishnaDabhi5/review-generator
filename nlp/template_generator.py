@@ -37,28 +37,34 @@ class TemplateReviewGenerator:
             print(f"Warning: Could not load buckets from {path}: {e}")
             return {}
     
-    def generate_review(self, business_name: str, level: str = "medium") -> str:
+    def generate_review(self, business_name: str, level: str = "medium", city: str = "", seo_keywords: List[str] = None) -> str:
         """
         Generate a review using templates and dataset sentences.
         
         Args:
             business_name: Name of the business to feature in the review
             level: Difficulty level - "easy" (2 sentences), "medium" (4 sentences), "detailed" (6+ sentences)
+            city: City name for SEO-friendly context
+            seo_keywords: List of SEO keywords to include in the review
         
         Returns:
             Generated review string
         """
+        if seo_keywords is None:
+            seo_keywords = []
         if level == "easy":
-            sentences = self._generate_easy(business_name)
+            sentences = self._generate_easy(business_name, city, seo_keywords)
         elif level == "detailed":
-            sentences = self._generate_detailed(business_name)
+            sentences = self._generate_detailed(business_name, city, seo_keywords)
         else:  # medium
-            sentences = self._generate_medium(business_name)
+            sentences = self._generate_medium(business_name, city, seo_keywords)
         
         return " ".join(sentences)
     
-    def _generate_easy(self, business_name: str) -> list:
+    def _generate_easy(self, business_name: str, city: str = "", seo_keywords: List[str] = None) -> list:
         """Generate 2-sentence easy review."""
+        if seo_keywords is None:
+            seo_keywords = []
         sentences = []
         
         # Opening template
@@ -75,8 +81,10 @@ class TemplateReviewGenerator:
         
         return sentences
     
-    def _generate_medium(self, business_name: str) -> list:
+    def _generate_medium(self, business_name: str, city: str = "", seo_keywords: List[str] = None) -> list:
         """Generate 4-sentence medium review."""
+        if seo_keywords is None:
+            seo_keywords = []
         sentences = []
         
         # 1. Opening template
@@ -84,13 +92,20 @@ class TemplateReviewGenerator:
             opening = random.choice(self.templates['opening'])
             sentences.append(opening.format(business_name=business_name))
         
-        # 2. Food template or dataset
+        # 2. Inject city or SEO keyword if available
+        if city:
+            sentences.append(f"Located in {city}, this place really stands out.")
+        elif seo_keywords:
+            kw = random.choice(seo_keywords)
+            sentences.append(f"The {kw} here is exceptional.")
+        
+        # 3. Food template or dataset
         if random.random() < 0.6 and self.templates.get('food'):
             sentences.append(random.choice(self.templates['food']))
         elif self.buckets.get('food'):
             sentences.append(random.choice(self.buckets['food']))
         
-        # 3. Service/staff template or dataset
+        # 4. Service/staff template or dataset
         service_opts = []
         if self.templates.get('staff_specific'):
             service_opts.extend(self.templates['staff_specific'])
@@ -102,15 +117,18 @@ class TemplateReviewGenerator:
         if service_opts:
             sentences.append(random.choice(service_opts))
         
-        # 4. Closing template
+        # 5. Closing template
         if self.templates.get('closing'):
             closing = random.choice(self.templates['closing'])
             sentences.append(closing)
         
-        return sentences
+        # Trim to 4 sentences if we added city/SEO
+        return sentences[:4]
     
-    def _generate_detailed(self, business_name: str) -> list:
+    def _generate_detailed(self, business_name: str, city: str = "", seo_keywords: List[str] = None) -> list:
         """Generate 6-sentence detailed review."""
+        if seo_keywords is None:
+            seo_keywords = []
         sentences = []
         
         # 1. Opening template
@@ -118,42 +136,41 @@ class TemplateReviewGenerator:
             opening = random.choice(self.templates['opening'])
             sentences.append(opening.format(business_name=business_name))
         
-        # 2. Environment/atmosphere
-        env_opts = []
-        if self.templates.get('environment'):
-            env_opts.extend(self.templates['environment'])
-        if self.buckets.get('ambience'):
-            env_opts.extend(self.buckets['ambience'])
-        if env_opts:
-            sentences.append(random.choice(env_opts))
+        # 2. Inject city or SEO keyword if available
+        if city:
+            sentences.append(f"Being in {city}, this spot offers something special.")
+        elif seo_keywords:
+            kw = random.choice(seo_keywords)
+            sentences.append(f"The {kw} experience here is top-notch.")
         
-        # 3. Food details
-        food_opts = []
-        if self.templates.get('food'):
-            food_opts.extend(self.templates['food'])
-        if self.buckets.get('food'):
-            food_opts.extend(self.buckets['food'])
-        if food_opts:
-            sentences.append(random.choice(food_opts))
+        # 3. Food template or dataset
+        if random.random() < 0.6 and self.templates.get('food'):
+            sentences.append(random.choice(self.templates['food']))
+        elif self.buckets.get('food'):
+            sentences.append(random.choice(self.buckets['food']))
         
-        # 4. Service/staff details
+        # 4. Service/staff template or dataset
         service_opts = []
         if self.templates.get('staff_specific'):
             service_opts.extend(self.templates['staff_specific'])
-        if self.templates.get('speed'):
-            service_opts.extend(self.templates['speed'])
+        if self.templates.get('service'):
+            service_opts.extend(self.templates['service'])
         if self.buckets.get('service'):
             service_opts.extend(self.buckets['service'])
+        
         if service_opts:
             sentences.append(random.choice(service_opts))
         
-        # 5. Value/pricing
-        if self.templates.get('value'):
-            sentences.append(random.choice(self.templates['value']))
+        # 5. Atmosphere/ambiance template or dataset
+        if self.templates.get('ambiance'):
+            sentences.append(random.choice(self.templates['ambiance']))
+        elif self.buckets.get('ambiance'):
+            sentences.append(random.choice(self.buckets['ambiance']))
         
         # 6. Closing template
         if self.templates.get('closing'):
             closing = random.choice(self.templates['closing'])
             sentences.append(closing)
         
-        return sentences
+        # Trim to 6 sentences if we added city/SEO
+        return sentences[:6]
