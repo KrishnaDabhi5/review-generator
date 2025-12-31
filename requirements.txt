@@ -1,8 +1,4 @@
-pandas
-nltk
-spacy
-scikit-learn
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
 requests
