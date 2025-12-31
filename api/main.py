@@ -387,10 +387,20 @@ async def generate_review(req: GenerateReviewRequest):
     business_name = (req.restaurant or "").strip() or "this restaurant"
     level = req.level if req.level in ["easy", "medium", "detailed"] else "medium"
 
-    if FOOD_GENERATOR:
-        review_text = FOOD_GENERATOR.generate_review(business_name, level)
+    # Try to load saved menu items for this restaurant (Option A: use only saved menu)
+    menu_items = []
+    if FOOD_EXTRACTOR:
+        try:
+            menu_items = FOOD_EXTRACTOR.get_restaurant_foods(business_name, include_ranks=False)
+        except Exception:
+            menu_items = []
+
+    # If we have saved menu items, use FoodAwareGenerator with only those items
+    if FOOD_GENERATOR and menu_items:
+        review_text = FOOD_GENERATOR.generate_review(business_name, level, food_items=menu_items)
         return {"review": review_text}
 
+    # If no menu or generator unavailable, fall back to generic sentences (no specific food names)
     if GENERATOR:
         review_text = GENERATOR.generate_review(business_name, level)
         return {"review": review_text}
