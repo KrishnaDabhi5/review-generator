@@ -287,6 +287,11 @@ async def root():
           .plate{width:120px;height:80px}
           .plate.small{width:90px;height:60px}
         }
+
+        @media (max-width:768px){
+          .right-container{display:none}
+          .card{width:100%}
+        }
       </style>
     </head>
 
