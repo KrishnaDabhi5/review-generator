@@ -1,6 +1,6 @@
 import json
 import random
-from typing import Optional
+from typing import Optional, List
 
 class TemplateReviewGenerator:
     """
