@@ -145,11 +145,35 @@ class FoodAwareReviewGenerator:
             sentences.append(opening.format(business_name=business_name))
         
         # 2. Inject city or SEO keyword if available
+        choices = ["none"]
+        weights = [0.25]
         if city:
-            sentences.append(f"Located in {city}, this place really stands out.")
-        elif seo_keywords:
+            choices.append("city")
+            weights.append(0.45)
+        if seo_keywords:
+            choices.append("kw")
+            weights.append(0.30)
+
+        pick = random.choices(choices, weights=weights, k=1)[0]
+        if pick == "city":
+            city_lines = [
+                f"In {city}, this spot is definitely worth a visit.",
+                f"If you're around {city}, put this place on your list.",
+                f"This is one of those places in {city} that you end up recommending.",
+                f"Right in {city}, this place stood out for all the right reasons.",
+                f"{city} has a lot of options, but this one really impressed me.",
+            ]
+            sentences.append(random.choice(city_lines))
+        elif pick == "kw":
             kw = random.choice(seo_keywords)
-            sentences.append(f"The {kw} here is exceptional.")
+            kw_lines = [
+                f"A great choice if you're looking for {kw}.",
+                f"Perfect for anyone craving {kw}.",
+                f"If {kw} is what you want, you'll be happy here.",
+                f"This place delivers when it comes to {kw}.",
+                f"Easily one of the better spots for {kw} in the area.",
+            ]
+            sentences.append(random.choice(kw_lines))
         
         # 3. Food with specific item
         if food_items:
@@ -202,11 +226,35 @@ class FoodAwareReviewGenerator:
             sentences.append(opening.format(business_name=business_name))
         
         # 2. Inject city or SEO keyword if available
+        choices = ["none"]
+        weights = [0.15]
         if city:
-            sentences.append(f"Being in {city}, this spot offers something special.")
-        elif seo_keywords:
+            choices.append("city")
+            weights.append(0.55)
+        if seo_keywords:
+            choices.append("kw")
+            weights.append(0.30)
+
+        pick = random.choices(choices, weights=weights, k=1)[0]
+        if pick == "city":
+            city_lines = [
+                f"In {city}, this place genuinely stands out.",
+                f"If you're exploring {city}, this is a great stop.",
+                f"One of my better finds in {city} recently.",
+                f"This is the kind of place in {city} you come back to.",
+                f"{city} has plenty of choices, but this one was a pleasant surprise.",
+            ]
+            sentences.append(random.choice(city_lines))
+        elif pick == "kw":
             kw = random.choice(seo_keywords)
-            sentences.append(f"The {kw} experience here is top-notch.")
+            kw_lines = [
+                f"For anyone searching for {kw}, this place is a solid pick.",
+                f"It really hits the mark if you're into {kw}.",
+                f"This is a great option when {kw} is on your mind.",
+                f"The overall {kw} experience here felt really well done.",
+                f"If {kw} matters to you, you'll appreciate what they offer.",
+            ]
+            sentences.append(random.choice(kw_lines))
         
         # 3. Environment/atmosphere
         env_opts = []
