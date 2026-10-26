@@ -38,5 +38,33 @@
       "name": "paneer hhandi",
       "rank": 1
     }
+  ],
+  "krishna cafe": [
+    {
+      "name": "dosa",
+      "rank": 1
+    },
+    {
+      "name": "edili",
+      "rank": 2
+    },
+    {
+      "name": "panipuri",
+      "rank": 3
+    },
+    {
+      "name": "momo",
+      "rank": 4
+    }
+  ],
+  "test cafe": [
+    {
+      "name": "dosa",
+      "rank": 1
+    },
+    {
+      "name": "paneer",
+      "rank": 2
+    }
   ]
 }

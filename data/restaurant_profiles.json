@@ -24,5 +24,26 @@
       "indian food",
       "dosa in surat"
     ]
+  },
+  "krishna cafe": {
+    "restaurant": "Krishna Cafe",
+    "city": "Surat",
+    "lat": 21.2231164,
+    "lng": 72.8241796,
+    "seo_keywords": [
+      "krishna cafe surat",
+      "best restaurant in surat",
+      "family restaurant in surat",
+      "restaurant near me",
+      "best indian restaurant in surat",
+      "best chinese restaurant in surat",
+      "chinese food",
+      "dosa",
+      "dosa in surat",
+      "edli",
+      "edli in surat",
+      "momo in surat",
+      "paneer chili in surat"
+    ]
   }
 }

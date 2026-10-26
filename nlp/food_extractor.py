@@ -125,7 +125,10 @@ class FoodItemExtractor:
         self.food_db[restaurant_name.lower()] = cleaned_items
         self._save_food_db()
         
-        print(f"✅ Added {len(cleaned_items)} ranked food items for '{restaurant_name}'")
+        try:
+            print(f"[OK] Added {len(cleaned_items)} ranked food items for '{restaurant_name}'")
+        except (UnicodeEncodeError, OSError):
+            pass  # Suppress encoding errors on Windows consoles
     
     def get_restaurant_foods(self, restaurant_name: str, include_ranks: bool = False) -> List[dict]:
         """

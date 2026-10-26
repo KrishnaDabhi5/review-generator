@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import json
+import logging
 import requests
 from pathlib import Path
 from typing import List, Optional
@@ -12,7 +14,18 @@ from nlp.template_generator import TemplateReviewGenerator
 from nlp.food_aware_generator import FoodAwareReviewGenerator
 from nlp.food_extractor import FoodItemExtractor
 
+logger = logging.getLogger("uvicorn.error")
+
 app = FastAPI(title="Review Generator API with Food Items")
+
+# CORS — allow all origins so the frontend works from any domain on Railway
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class GenerateRequest(BaseModel):
     business: Optional[str] = None
@@ -450,11 +463,15 @@ async def add_menu(req: AddMenuRequest):
     if not FOOD_EXTRACTOR:
         raise HTTPException(status_code=500, detail="Food extractor not available.")
     
-    # Convert menu items to the format expected by the extractor
-    menu_items = [{"name": item.name, "rank": item.rank} for item in req.menu_items]
-    
-    FOOD_EXTRACTOR.add_restaurant_foods(req.restaurant, menu_items)
-    return {"message": "Menu added"}
+    try:
+        # Convert menu items to the format expected by the extractor
+        menu_items = [{"name": item.name, "rank": item.rank} for item in req.menu_items]
+        
+        FOOD_EXTRACTOR.add_restaurant_foods(req.restaurant, menu_items)
+        return {"message": "Menu added"}
+    except Exception as e:
+        logger.error(f"Failed to save menu for '{req.restaurant}': {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to save menu: {e}")
 
 
 @app.post("/api/restaurant-profile")
